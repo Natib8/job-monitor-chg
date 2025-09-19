@@ -55,14 +55,15 @@ jobs:
         if: always()
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASSWORD }}
+          server_address: ${{ secrets.SMTP_SERVER }}   # smtp-relay.brevo.com
+          server_port: ${{ secrets.SMTP_PORT }}        # 587
+          secure: false                                # 587 = STARTTLS
+          username: ${{ secrets.SMTP_USER }}           # Login z Brevo
+          password: ${{ secrets.SMTP_PASSWORD }}       # SMTP key z Brevo
           subject: "Nowe oferty: główna księgowa/y / Chief Accountant — $(date -u +'%Y-%m-%d')"
           to: ${{ secrets.MAIL_TO }}
-          from: ${{ secrets.MAIL_FROM }}
+          from: ${{ secrets.MAIL_FROM }}               # dokładnie zweryfikowany nadawca z Brevo
           body: file://email_body.txt
-          content_type: text/plain
           attachments: |
+            data/new_offers_*.csv
             $(ls -t data/new_offers_*.csv 2>/dev/null | head -n 1 || true)
