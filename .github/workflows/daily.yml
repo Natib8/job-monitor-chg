@@ -2,8 +2,8 @@ name: Daily Job Monitor
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # 06:00 UTC ≈ 08:00 PL (CET/CEST)
-  workflow_dispatch: {}    # pozwala uruchomić ręcznie z zakładki Actions
+    - cron: '0 6 * * *'   # 06:00 UTC ≈ 08:00 czasu PL
+  workflow_dispatch: {}    # ręczne uruchomienie z zakładki Actions
 
 permissions:
   contents: write          # pozwala na commit/push CSV
@@ -11,6 +11,7 @@ permissions:
 jobs:
   run-monitor:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,19 +52,20 @@ jobs:
             echo "No changes to commit."
           fi
 
-      - name: Send email with new offers
-        if: always()
+      - name: Send email with new offers (Brevo SMTP)
+        if: always()    # wyślij maila nawet gdy nie było nowych ofert
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ secrets.SMTP_SERVER }}   # smtp-relay.brevo.com
-          server_port: ${{ secrets.SMTP_PORT }}        # 587
-          secure: false                                # 587 = STARTTLS
-          username: ${{ secrets.SMTP_USER }}           # Login z Brevo
+          server_address: ${{ secrets.SMTP_SERVER }}   # np. smtp-relay.brevo.com
+          server_port: ${{ secrets.SMTP_PORT }}        # 587 (STARTTLS) lub 465 (SSL)
+          secure: false                                # dla 587 ustaw false; dla 465 zmień na true
+          username: ${{ secrets.SMTP_USER }}           # Login/Username z Brevo
           password: ${{ secrets.SMTP_PASSWORD }}       # SMTP key z Brevo
           subject: "Nowe oferty: główna księgowa/y / Chief Accountant — $(date -u +'%Y-%m-%d')"
-          to: ${{ secrets.MAIL_TO }}
-          from: ${{ secrets.MAIL_FROM }}               # dokładnie zweryfikowany nadawca z Brevo
-          body: file://email_body.txt
+          to: ${{ secrets.MAIL_TO }}                   # np. natka.bartosiewicz@gmail.com
+          from: ${{ secrets.MAIL_FROM }}               # zweryfikowany nadawca w Brevo
+          body: file://email_body.txt                  # treść z pliku wygenerowanego przez skrypt
           attachments: |
-            data/new_offers_*.csv
-            $(ls -t data/new_offers_*.csv 2>/dev/null | head -n 1 || true)
+            data/new_offers_*.csv                      # jeśli brak plików, wyśle bez załącznika
+          nodemailerlog: true
+          nodemailerdebug: true
