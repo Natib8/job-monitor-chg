@@ -1,0 +1,10 @@
+Dzień dobry,
+
+Poniżej nowe oferty stanowisk seniorskich księgowych z ostatniego przebiegu:
+{{NEW_LIST}}
+
+Pełna, narastająca baza (CSV, do pobrania):
+{{MASTER_LINK}}
+
+Pozdrawiamy,
+Automat monitorujący oferty (GitHub Actions)
